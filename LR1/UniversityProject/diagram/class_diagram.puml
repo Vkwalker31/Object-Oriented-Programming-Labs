@@ -1,0 +1,126 @@
+@startuml
+
+scale 1.2
+skinparam nodesep 100
+skinparam ranksep 90
+skinparam linetype ortho
+skinparam padding 5
+skinparam class {
+    BackgroundColor White
+    ArrowColor #2688d4
+    BorderColor #2688d4
+}
+
+title UML-диаграмма классов: предметная область "Университет"
+
+package "models" {
+
+    abstract class Person {
+        - firstName : String
+        - lastName : String
+        - dateOfBirth : LocalDate
+        - email : String
+        - phoneNumber : String
+        + getFullName() : String
+        + getAge() : int
+    }
+
+    class Student {
+        - studentId : String
+        - enrollmentYear : int
+        - currentYear : int
+        - gpa : double
+        + enrollInCourse(course : Course) : void
+        + updateGpa() : void
+    }
+
+    class Teacher {
+        - employeeId : String
+        - position : String
+        - hireDate : LocalDate
+        - salary : double
+        + assignCourse(course : Course) : void
+        + getYearsOfService() : int
+    }
+
+    class University {
+        - name : String
+        - address : String
+        - foundedYear : int
+        + addFaculty(faculty : Faculty) : void
+        + getTotalTeachers() : int
+    }
+
+    class Faculty {
+        - name : String
+        - code : String
+        + addDepartment(dept : Department) : void
+    }
+
+    class Department {
+        - name : String
+        - code : String
+        + addTeacher(teacher : Teacher) : void
+        + addCourse(course : Course) : void
+    }
+
+    '' --- УЧЕБНЫЙ ПРОЦЕСС ---
+    class Course {
+        - courseId : String
+        - name : String
+        - credits : int
+        - maxStudents : int
+        + assignTeacher(teacher : Teacher) : void
+        + isFull() : boolean
+    }
+
+    class Enrollment {
+        - enrollmentDate : LocalDate
+        - status : String
+        + setGrade(grade : Grade) : void
+    }
+
+    class Grade {
+        - value : double
+        - letter : String
+        - dateAwarded : LocalDate
+        + isPassing() : boolean
+    }
+
+    class Schedule {
+        - dayOfWeek : String
+        - startTime : LocalTime
+        - endTime : LocalTime
+        + getDuration() : long
+    }
+
+    class Classroom {
+        - roomNumber : String
+        - building : String
+        - capacity : int
+        - hasProjector : boolean
+        - hasComputers : boolean
+    }
+}
+
+Person <|-- Student
+Person <|-- Teacher
+
+University "1" *-- "*" Faculty : contains
+Faculty "1" *-- "*" Department : contains
+
+Department "1" o-- "*" Teacher : employs
+Department "1" o-- "*" Course : offers
+
+Faculty "1" -right-> "1" Teacher : dean
+Department "1" -right-> "1" Teacher : head
+
+Teacher "1" o-- "*" Course : teaches
+Course "1" o-right- "1" Schedule : schedule
+Schedule "*" -down-> "1" Classroom : location
+
+Student "1" *-- "*" Enrollment : has
+Course "1" *-- "*" Enrollment : students_list
+Enrollment "1" o-- "0..1" Grade : result
+
+@enduml
