@@ -1,74 +1,67 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 )
 
 // =========================================================
 // Файл: processor.go
-// Описание: Основная бизнес-логика.
+// Описание: Оркестрация обработки заказов (контроллер).
 // =========================================================
 
-type OrderProcessor struct {
-	database *RandomSQLDatabase
-	mailer   *SmtpMailer
+// ModernOrderProcessor - обработка заказов, используя Dependency Injection
+// ИСПРАВЛЕНО (SRP): разделена ответственность между компонентами
+// ИСПРАВЛЕНО (DIP): все зависимости внедряются, а не создаются в процессе
+type ModernOrderProcessor struct {
+	validator  OrderValidator
+	calculator PriceCalculator
+	repository OrderRepository
+	notifier   NotificationService
 }
 
-func NewOrderProcessor() *OrderProcessor {
-	return &OrderProcessor{
-		database: NewMySQLDatabase(),
-		mailer:   &SmtpMailer{Server: "smtp.google.com"},
+// NewModernOrderProcessor - процессор с внедренными зависимостями
+// ИСПРАВЛЕНО (DIP): Dependency Injection через конструктор
+func NewModernOrderProcessor(
+	validator OrderValidator,
+	calculator PriceCalculator,
+	repository OrderRepository,
+	notifier NotificationService,
+) *ModernOrderProcessor {
+	return &ModernOrderProcessor{
+		validator:  validator,
+		calculator: calculator,
+		repository: repository,
+		notifier:   notifier,
 	}
 }
 
-func (op *OrderProcessor) Process(order Order) error {
-	fmt.Printf("--- Processing Order %s ---\n", order.ID)
+// Process - обработка заказа через все этапы
+// ИСПРАВЛЕНО: теперь это только оркестрация, логика выделена в компоненты
+func (p *ModernOrderProcessor) Process(order Order) error {
+	fmt.Printf("\n--- Processing Order %s ---\n", order.ID)
 
-	// 1. Логика валидации
-	if len(order.Items) == 0 {
-		return errors.New("order must have at least one item")
-	}
-	if order.Destination.City == "" {
-		return errors.New("destination city is required")
+	if err := p.validator.Validate(order); err != nil {
+		return fmt.Errorf("validation error: %w", err)
 	}
 
-	// 2. Логика расчета суммы
-	var total float64
-	for _, item := range order.Items {
-		total += item.Price
+	total, err := p.calculator.Calculate(order)
+	if err != nil {
+		return fmt.Errorf("calculation error: %w", err)
+	}
+	fmt.Printf("Total calculated: $%.2f\n", total)
+
+	if err := p.repository.Save(order, total); err != nil {
+		return fmt.Errorf("repository error: %w", err)
 	}
 
-	// 3. Логика скидок и налогов
-	switch order.Type {
-	case "Standard":
-		// Стандартный налог
-		total = total * 1.2
-	case "Premium":
-		// Скидка 10% + налог
-		total = (total * 0.9) * 1.2
-	case "Budget":
-		if len(order.Items) > 3 {
-			fmt.Println("Budget orders cannot have more than 3 items. Skipping.")
-			return nil
-		}
-	case "International":
-		total = total * 1.5 // Таможенный сбор
-		if order.Destination.City == "Nowhere" {
-			return errors.New("cannot ship to Nowhere")
-		}
-	default:
-		return errors.New("unknown order type")
+	summary := OrderSummary{
+		OrderID: order.ID,
+		Total:   total,
+	}
+	if err := p.notifier.NotifyAll(summary, order); err != nil {
+		return fmt.Errorf("notification error: %w", err)
 	}
 
-	// 4. Логика сохранения
-	if err := op.database.SaveOrder(order, total); err != nil {
-		return fmt.Errorf("database error: %w", err)
-	}
-
-	// 5. Логика уведомлений
-	emailBody := fmt.Sprintf("<h1>Your order %s is confirmed!</h1><p>Total: %.2f</p>", order.ID, total)
-	op.mailer.SendHtmlEmail(order.ClientEmail, "Order Confirmation", emailBody)
-
+	fmt.Printf("Order %s processed successfully!\n", order.ID)
 	return nil
 }
