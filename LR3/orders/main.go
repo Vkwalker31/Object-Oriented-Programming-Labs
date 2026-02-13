@@ -11,32 +11,62 @@ import (
 // =========================================================
 
 func main() {
-	// 1. Создание заказа
-	order := Order{
-		ID:   "ORD-256-X",
-		Type: "Premium",
-		Items: []Item{
-			{ID: "1", Name: "Thermal Clips", Price: 1500},
-			{ID: "2", Name: "UNATCO Pass Card", Price: 50},
+	fmt.Println("╔════════════════════════════════════════╗")
+	fmt.Println("║   ORDERS SYSTEM v2.0 (SOLID Edition)   ║")
+	fmt.Println("╚════════════════════════════════════════╝\n")
+
+	// === SETUP: Dependency Injection ===
+	validator := NewBasicOrderValidator()
+	calculator := NewSmartPriceCalculator()
+	database := NewMySQLDatabase()
+	repository := NewCachedOrderRepository(database)
+
+	emailNotifier := NewEmailNotifier("smtp.google.com")
+	telegramNotifier := NewTelegramNotifier("bot123456:ABC-DEF")
+	fileLogger := NewFileLogger("events.log")
+	notificationService := NewCompositeNotificationService(emailNotifier, telegramNotifier, fileLogger)
+
+	processor := NewModernOrderProcessor(validator, calculator, repository, notificationService)
+
+	// === TEST: Обработка 3 заказов ===
+	orders := []Order{
+		{
+			ID:           "ORD-001",
+			Type:         "Premium",
+			Items:        []Item{{ID: "1", Name: "Laptop", Price: 1500}},
+			ClientEmail:  "john@example.com",
+			Destination:  Address{City: "New York", Street: "5th Ave", Zip: "10001"},
+			DiscountCard: &DiscountCard{Type: "Gold"},
 		},
-		ClientEmail: "jeevacation@gmail.com",
-		Destination: Address{City: "Agartha", Street: "33 Thomas Street", Zip: "[REDACTED]"},
+		{
+			ID:           "ORD-002",
+			Type:         "International",
+			Items:        []Item{{ID: "2", Name: "Phone", Price: 800}},
+			ClientEmail:  "jane@example.com",
+			Destination:  Address{City: "London", Street: "Baker St", Zip: "NW1"},
+			DiscountCard: &DiscountCard{Type: "Silver"},
+		},
+		{
+			ID:           "ORD-003",
+			Type:         "Budget",
+			Items:        []Item{{ID: "3", Name: "Mouse", Price: 50}},
+			ClientEmail:  "bob@example.com",
+			Destination:  Address{City: "Paris", Street: "Rue de Rivoli", Zip: "75001"},
+			DiscountCard: nil,
+		},
 	}
 
-	// 2. Инициализация процессора
-	processor := NewOrderProcessor()
-
-	// 3. Обработка заказа
-	if err := processor.Process(order); err != nil {
-		log.Fatalf("Failed to process order: %v", err)
+	for _, order := range orders {
+		if err := processor.Process(order); err != nil {
+			log.Printf("❌ Error: %v\n", err)
+		}
 	}
 
-	// 4. Работа с обслуживанием
-	fmt.Println("\nTesting Warehouse Stuff:")
-	workers := []WarehouseWorker{
-		HumanManager{},
-		RobotPacker{Model: "George Droid"},
-	}
+	human := HumanManager{}
+	robot := RobotPacker{Model: "R2D2"}
 
-	ManageWarehouse(workers)
+	ManageWarehouse([]WorkerOrderProcessor{human, robot})
+	HoldMeeting([]MeetingAttendee{human})
+	BreakTime([]Restable{human, robot})
+	CheckSlackers([]TimeWaster{human})
 }
