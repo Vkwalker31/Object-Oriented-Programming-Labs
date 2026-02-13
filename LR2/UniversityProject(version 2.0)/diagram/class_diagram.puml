@@ -1,0 +1,174 @@
+@startuml
+
+scale 1.1
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 100
+skinparam class {
+    BackgroundColor White
+    ArrowColor #2688d4
+    BorderColor #2688d4
+}
+
+title UML-диаграмма классов: предметная область "Университет" (Обновлённая)
+
+package "models" {
+
+    interface Attendable {
+        + getId() : String
+        + getName() : String
+        + getMaxCapacity() : int
+        + getCurrentOccupancy() : int
+        + hasAvailableSpots() : boolean
+        + addOccupant() : void
+        + removeOccupant() : void
+    }
+
+    abstract class Person {
+        - firstName : String
+        - lastName : String
+        - dateOfBirth : LocalDate
+        - email : String
+        - phoneNumber : String
+        + getFullName() : String
+        + getAge() : int
+    }
+
+    class Student {
+        - studentId : String
+        - enrollmentYear : int
+        - currentYear : int
+        - gpa : double
+        - enrollments : List<Enrollment>
+        + enrollInCourse(course : AbstractCourse) : void
+        + updateGpa() : void
+        + getActiveCourses() : List<AbstractCourse>
+    }
+
+    class Teacher {
+        - employeeId : String
+        - position : String
+        - hireDate : LocalDate
+        - salary : double
+        - courses : List<AbstractCourse>
+        + assignCourse(course : AbstractCourse) : void
+        + removeCourse(course : AbstractCourse) : void
+        + getYearsOfService() : int
+    }
+
+    abstract class AbstractCourse {
+        # courseId : String
+        # name : String
+        # credits : int
+        # maxStudents : int
+        # teacher : Teacher
+        # enrollments : List<Enrollment>
+        # schedule : Schedule
+        + assignTeacher(teacher : Teacher) : void
+        + addEnrollment(enrollment : Enrollment) : void
+        + isFull() : boolean
+        + {abstract} getCourseType() : String
+    }
+
+    class LabCourse {
+        - numberOfComputers : int
+        - requiresSpecialSoftware : boolean
+        + getCourseType() : "Laboratory"
+    }
+
+    class LectureCourse {
+        - lectureHall : String
+        + getCourseType() : "Lecture"
+    }
+
+    class Enrollment {
+        - enrollmentDate : LocalDate
+        - status : String
+        - student : Student
+        - course : AbstractCourse
+        - grade : Grade
+        + setGrade(grade : Grade) : void
+        + drop() : void
+    }
+
+    class Grade {
+        - value : double
+        - letter : String
+        - dateAwarded : LocalDate
+        - comments : String
+        + isPassing() : boolean
+    }
+
+    class Schedule {
+        - dayOfWeek : String
+        - startTime : LocalTime
+        - endTime : LocalTime
+        - classroom : Classroom
+        + getDuration() : long
+    }
+
+    class Classroom {
+        - roomNumber : String
+        - building : String
+        - capacity : int
+        - hasProjector : boolean
+        - hasComputers : boolean
+        + getEquipment() : String
+    }
+
+    class Department {
+        - name : String
+        - code : String
+        - head : Teacher
+        - teachers : List<Teacher>
+        - courses : List<AbstractCourse>
+        + addTeacher(t : Teacher) : void
+        + addCourse(c : AbstractCourse) : void
+    }
+
+    class Faculty {
+        - name : String
+        - code : String
+        - dean : Teacher
+        - departments : List<Department>
+        + addDepartment(d : Department) : void
+    }
+
+    class University {
+        - name : String
+        - address : String
+        - foundedYear : int
+        - faculties : List<Faculty>
+        + addFaculty(f : Faculty) : void
+        + getTotalTeachers() : int
+        + getTotalCourses() : int
+    }
+}
+
+'' Наследование
+Person <|-- Student
+Person <|-- Teacher
+Attendable <|.. AbstractCourse
+AbstractCourse <|-- LabCourse
+AbstractCourse <|-- LectureCourse
+
+'' Структура организации
+University "1" *-- "*" Faculty : содержит
+Faculty "1" *-- "*" Department : содержит
+Department "1" o-- "*" Teacher : сотрудники
+Department "1" o-- "*" AbstractCourse : предлагает
+
+'' Административные роли
+Faculty "1" --> "1" Teacher : декан (dean)
+Department "1" --> "1" Teacher : зав. кафедрой (head)
+
+'' Учебный процесс
+Teacher "1" o-- "*" AbstractCourse : преподает
+AbstractCourse "1" o-right- "0..1" Schedule : расписание
+Schedule "*" --> "1" Classroom : место проведения
+
+Student "1" *-- "*" Enrollment : имеет зачисления
+AbstractCourse "1" *-- "*" Enrollment : список студентов
+Enrollment "1" o-- "0..1" Grade : результат
+
+@enduml
