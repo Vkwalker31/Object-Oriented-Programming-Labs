@@ -58,7 +58,7 @@ func main() {
 
 	for _, order := range orders {
 		if err := processor.Process(order); err != nil {
-			log.Printf("❌ Error: %v\n", err)
+			log.Printf("Error: %v\n", err)
 		}
 	}
 
