@@ -46,11 +46,3 @@ public class CostBreakdown {
     }
 }
 
-@Getter
-@AllArgsConstructor
-class CargoCostDetail {
-    final String cargoName;
-    final double massKg;
-    final double costPerKg;
-    final double totalCost;
-}
