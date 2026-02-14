@@ -42,7 +42,7 @@ public class Main {
             printSummary();
 
         } catch (Exception e) {
-            System.err.println("❌ Ошибка: " + e.getMessage());
+            System.err.println("Ошибка: " + e.getMessage());
             e.printStackTrace();
         }
     }
