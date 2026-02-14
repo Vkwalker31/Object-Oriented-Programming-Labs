@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Класс LogisticsFactory — центральный узел управления порождением объектов логистической системы.
- * GoF: Abstract Factory, GRASP: Creator & Indirection — ЗНАЕТ все доступные типы фабрик и ОТВЕЧАЕТ за создание семейств Cargo и Transport, скрывая детали реализации от клиента.
+ * GoF: Abstract Factory, GRASP: Creator & Indirection — знает все доступные типы фабрик и отвечает за создание семейств Cargo и Transport, скрывая детали реализации от клиента.
  */
 
 public class LogisticsFactory {
@@ -26,7 +26,7 @@ public class LogisticsFactory {
     }
 
     /**
-     * GoF: Singleton — ОТВЕЧАЕТ за обеспечение существования единственного экземпляра LogisticsFactory в системе.
+     * GoF: Singleton — отвечает за обеспечение существования единственного экземпляра LogisticsFactory в системе.
      */
 
     public static synchronized LogisticsFactory getInstance() {
@@ -38,7 +38,7 @@ public class LogisticsFactory {
 
     /**
      * Метод registerFactories — инициализирует внутренние реестры фабрик.
-     * ЗНАЕТ о соответствии строковых идентификаторов конкретным реализациям CargoFactory и TransportFactory.
+     * знает о соответствии строковых идентификаторов конкретным реализациям CargoFactory и TransportFactory.
      */
 
     private void registerFactories() {
@@ -56,7 +56,7 @@ public class LogisticsFactory {
     }
 
     /**
-     * GRASP: Creator & Indirection — ОТВЕЧАЕТ за создание объекта Cargo через посредника.
+     * GRASP: Creator & Indirection — отвечает за создание объекта Cargo через посредника.
      * Находит нужную фабрику по type и возвращает созданный груз в количестве quantity.
      */
 
@@ -74,7 +74,7 @@ public class LogisticsFactory {
     }
 
     /**
-     * GRASP: Creator & Indirection — ОТВЕЧАЕТ за создание объекта Transport.
+     * GRASP: Creator & Indirection — отвечает за создание объекта Transport.
      * Изолирует клиента от логики выбора конкретного типа транспорта на основе переданного type.
      */
 
