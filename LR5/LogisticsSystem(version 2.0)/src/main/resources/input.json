@@ -1,0 +1,9 @@
+{
+  "cargo": [
+    { "type": "electronics", "quantity": 5 },
+    { "type": "clothing", "quantity": 10 }
+  ],
+  "distance": 500,
+  "transportType": "",
+  "destination": "Minsk"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<input>
+  <cargo>
+    <type>electronics</type>
+    <quantity>5</quantity>
+  </cargo>
+  <cargo>
+    <type>clothing</type>
+    <quantity>10</quantity>
+  </cargo>
+  <distance>500</distance>
+  <transportType></transportType>
+  <destination>Minsk</destination>
+</input>
