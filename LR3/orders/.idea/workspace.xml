@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f3118cd-1641-47ce-a4e2-94bc80862efc" name="Changes" comment="" />
+    <list default="true" id="7f3118cd-1641-47ce-a4e2-94bc80862efc" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/events.log" beforeDir="false" afterPath="$PROJECT_DIR$/events.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders_db.txt" beforeDir="false" afterPath="$PROJECT_DIR$/orders_db.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../LR6/forecast/api/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/../../LR6/forecast/api/docs/docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,6 +37,7 @@
     &quot;RunOnceActivity.GoLinterPluginOnboardingV2&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.analysis.ui.options.defaults&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,

@@ -15,73 +15,293 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/weather": {
+        "/forecast": {
             "get": {
-                "description": "Returns current weather for given coordinates or city name. Use lat+lon or city= (Minsk, London, Tokyo, Shanghai, Warsaw). Provider: openweather (default) or google.",
-                "produces": ["application/json"],
-                "tags": ["weather"],
-                "summary": "Get Current Weather",
+                "description": "Returns weather forecast for given coordinates or city name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "weather"
+                ],
+                "summary": "Get Weather Forecast",
                 "parameters": [
-                    {"type": "string", "description": "Latitude (optional if city is set)", "name": "lat", "in": "query"},
-                    {"type": "string", "description": "Longitude (optional if city is set)", "name": "lon", "in": "query"},
-                    {"type": "string", "description": "City name: Minsk, London, Tokyo, Shanghai, Warsaw", "name": "city", "in": "query"},
-                    {"type": "string", "description": "Provider: openweather or google", "name": "provider", "in": "query", "default": "openweather"}
+                    {
+                        "type": "string",
+                        "description": "Latitude (optional if city is set)",
+                        "name": "lat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Longitude (optional if city is set)",
+                        "name": "lon",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City name: Minsk, London, Tokyo, Shanghai, Warsaw",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "openweather",
+                        "description": "Provider: openweather or google",
+                        "name": "provider",
+                        "in": "query"
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "OK", "schema": {"$ref": "#/definitions/SuccessResponseCurrentWeather"}},
-                    "400": {"description": "Bad Request", "schema": {"$ref": "#/definitions/StatusResponse"}},
-                    "500": {"description": "Internal Server Error", "schema": {"$ref": "#/definitions/StatusResponse"}}
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.SuccessResponse-models_weather_Forecast"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.StatusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.StatusResponse"
+                        }
+                    }
                 }
             }
         },
-        "/forecast": {
+        "/weather": {
             "get": {
-                "description": "Returns weather forecast for given coordinates or city name.",
-                "produces": ["application/json"],
-                "tags": ["weather"],
-                "summary": "Get Weather Forecast",
+                "description": "Returns current weather for given coordinates or city name. Use lat+lon or city= (Minsk, London, Tokyo, Shanghai, Warsaw). Provider: openweather (default) or google.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "weather"
+                ],
+                "summary": "Get Current Weather",
                 "parameters": [
-                    {"type": "string", "description": "Latitude (optional if city is set)", "name": "lat", "in": "query"},
-                    {"type": "string", "description": "Longitude (optional if city is set)", "name": "lon", "in": "query"},
-                    {"type": "string", "description": "City name: Minsk, London, Tokyo, Shanghai, Warsaw", "name": "city", "in": "query"},
-                    {"type": "string", "description": "Provider: openweather or google", "name": "provider", "in": "query", "default": "openweather"}
+                    {
+                        "type": "string",
+                        "description": "Latitude (optional if city is set)",
+                        "name": "lat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Longitude (optional if city is set)",
+                        "name": "lon",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City name: Minsk, London, Tokyo, Shanghai, Warsaw",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "openweather",
+                        "description": "Provider: openweather or google",
+                        "name": "provider",
+                        "in": "query"
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "OK", "schema": {"$ref": "#/definitions/SuccessResponseForecast"}},
-                    "400": {"description": "Bad Request", "schema": {"$ref": "#/definitions/StatusResponse"}},
-                    "500": {"description": "Internal Server Error", "schema": {"$ref": "#/definitions/StatusResponse"}}
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.SuccessResponse-models_weather_CurrentWeather"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.StatusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.StatusResponse"
+                        }
+                    }
                 }
             }
         },
         "/weather/batch": {
             "post": {
                 "description": "Returns current temperature for several locations. Each item must have (lat+lon) or city.",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["weather"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "weather"
+                ],
                 "summary": "Get Current Weather for Multiple Locations",
                 "parameters": [
-                    {"in": "body", "name": "body", "required": true, "schema": {"type": "array", "items": {"$ref": "#/definitions/LocationRequest"}}},
-                    {"type": "string", "description": "Provider: openweather or google", "name": "provider", "in": "query", "default": "openweather"}
+                    {
+                        "description": "List of locations (lat+lon or city per item)",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.LocationRequest"
+                            }
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "default": "openweather",
+                        "description": "Provider: openweather or google",
+                        "name": "provider",
+                        "in": "query"
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "OK", "schema": {"$ref": "#/definitions/SuccessResponseBatchWeather"}},
-                    "400": {"description": "Bad Request", "schema": {"$ref": "#/definitions/StatusResponse"}},
-                    "500": {"description": "Internal Server Error", "schema": {"$ref": "#/definitions/StatusResponse"}}
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.SuccessResponse-api_BatchWeatherResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.StatusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared_responses.StatusResponse"
+                        }
+                    }
                 }
             }
         }
     },
     "definitions": {
-        "StatusResponse": {"type": "object", "properties": {"code": {"type": "integer"}, "message": {"type": "string"}}},
-        "CurrentWeather": {"type": "object", "properties": {"temperature": {"type": "number"}}},
-        "SuccessResponseCurrentWeather": {"type": "object", "properties": {"code": {"type": "integer"}, "message": {"type": "string"}, "data": {"$ref": "#/definitions/CurrentWeather"}}},
-        "ForecastEntry": {"type": "object", "properties": {"date": {"type": "string"}, "temperature": {"type": "number"}}},
-        "Forecast": {"type": "object", "properties": {"entries": {"type": "array", "items": {"$ref": "#/definitions/ForecastEntry"}}}},
-        "SuccessResponseForecast": {"type": "object", "properties": {"code": {"type": "integer"}, "message": {"type": "string"}, "data": {"$ref": "#/definitions/Forecast"}}},
-        "LocationRequest": {"type": "object", "properties": {"lat": {"type": "string"}, "lon": {"type": "string"}, "city": {"type": "string"}}},
-        "LocationWeather": {"type": "object", "properties": {"location": {"type": "string"}, "weather": {"$ref": "#/definitions/CurrentWeather"}}},
-        "SuccessResponseBatchWeather": {"type": "object", "properties": {"code": {"type": "integer"}, "message": {"type": "string"}, "data": {"type": "array", "items": {"$ref": "#/definitions/LocationWeather"}}}}
+        "api.LocationRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "lat": {
+                    "type": "string"
+                },
+                "lon": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.LocationWeather": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string"
+                },
+                "weather": {
+                    "$ref": "#/definitions/models_weather.CurrentWeather"
+                }
+            }
+        },
+        "models_weather.CurrentWeather": {
+            "type": "object",
+            "properties": {
+                "temperature": {
+                    "type": "number"
+                }
+            }
+        },
+        "models_weather.Forecast": {
+            "type": "object",
+            "properties": {
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models_weather.ForecastEntry"
+                    }
+                }
+            }
+        },
+        "models_weather.ForecastEntry": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number"
+                }
+            }
+        },
+        "shared_responses.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "shared_responses.SuccessResponse-api_BatchWeatherResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.LocationWeather"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "shared_responses.SuccessResponse-models_weather_CurrentWeather": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/models_weather.CurrentWeather"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "shared_responses.SuccessResponse-models_weather_Forecast": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/models_weather.Forecast"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
     }
 }`
 
@@ -95,6 +315,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

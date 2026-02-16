@@ -1,7 +1,37 @@
 basePath: /api/v1
 definitions:
+  api.LocationRequest:
+    properties:
+      city:
+        type: string
+      lat:
+        type: string
+      lon:
+        type: string
+    type: object
+  api.LocationWeather:
+    properties:
+      location:
+        type: string
+      weather:
+        $ref: '#/definitions/models_weather.CurrentWeather'
+    type: object
   models_weather.CurrentWeather:
     properties:
+      temperature:
+        type: number
+    type: object
+  models_weather.Forecast:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/models_weather.ForecastEntry'
+        type: array
+    type: object
+  models_weather.ForecastEntry:
+    properties:
+      date:
+        type: string
       temperature:
         type: number
     type: object
@@ -9,6 +39,17 @@ definitions:
     properties:
       code:
         type: integer
+      message:
+        type: string
+    type: object
+  shared_responses.SuccessResponse-api_BatchWeatherResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/api.LocationWeather'
+        type: array
       message:
         type: string
     type: object
@@ -21,26 +62,81 @@ definitions:
       message:
         type: string
     type: object
+  shared_responses.SuccessResponse-models_weather_Forecast:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models_weather.Forecast'
+      message:
+        type: string
+    type: object
 info:
   contact: {}
-  title: Wheather Example API
+  title: Weather Example API
   version: "1.0"
 paths:
-  /weather:
+  /forecast:
     get:
-      description: Returns current weather for given coordinates
+      description: Returns weather forecast for given coordinates or city name
       parameters:
-      - default: "18.300231990440125"
-        description: Latitude
+      - description: Latitude (optional if city is set)
         in: query
         name: lat
-        required: true
         type: string
-      - default: "-64.8251590359234"
-        description: Longitude
+      - description: Longitude (optional if city is set)
         in: query
         name: lon
-        required: true
+        type: string
+      - description: 'City name: Minsk, London, Tokyo, Shanghai, Warsaw'
+        in: query
+        name: city
+        type: string
+      - default: openweather
+        description: 'Provider: openweather or google'
+        in: query
+        name: provider
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_Forecast'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+      summary: Get Weather Forecast
+      tags:
+      - weather
+  /weather:
+    get:
+      description: 'Returns current weather for given coordinates or city name. Use
+        lat+lon or city= (Minsk, London, Tokyo, Shanghai, Warsaw). Provider: openweather
+        (default) or google.'
+      parameters:
+      - description: Latitude (optional if city is set)
+        in: query
+        name: lat
+        type: string
+      - description: Longitude (optional if city is set)
+        in: query
+        name: lon
+        type: string
+      - description: 'City name: Minsk, London, Tokyo, Shanghai, Warsaw'
+        in: query
+        name: city
+        type: string
+      - default: openweather
+        description: 'Provider: openweather or google'
+        in: query
+        name: provider
         type: string
       produces:
       - application/json
@@ -58,6 +154,44 @@ paths:
           schema:
             $ref: '#/definitions/shared_responses.StatusResponse'
       summary: Get Current Weather
+      tags:
+      - weather
+  /weather/batch:
+    post:
+      consumes:
+      - application/json
+      description: Returns current temperature for several locations. Each item must
+        have (lat+lon) or city.
+      parameters:
+      - description: List of locations (lat+lon or city per item)
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/api.LocationRequest'
+          type: array
+      - default: openweather
+        description: 'Provider: openweather or google'
+        in: query
+        name: provider
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared_responses.SuccessResponse-api_BatchWeatherResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+      summary: Get Current Weather for Multiple Locations
       tags:
       - weather
 swagger: "2.0"
