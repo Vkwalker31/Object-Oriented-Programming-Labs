@@ -6,11 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7f3118cd-1641-47ce-a4e2-94bc80862efc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/events.log" beforeDir="false" afterPath="$PROJECT_DIR$/events.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders_db.txt" beforeDir="false" afterPath="$PROJECT_DIR$/orders_db.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../LR6/forecast/api/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/../../LR6/forecast/api/docs/docs.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../LR6/forecast/api/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/validators.go" beforeDir="false" afterPath="$PROJECT_DIR$/validators.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,6 +83,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VgoModernizerVersionTracker">
     <upgrades>
