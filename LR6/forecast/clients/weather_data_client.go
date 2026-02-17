@@ -2,7 +2,6 @@ package clients
 
 import "github.com/shopspring/decimal"
 
-// ForecastItem represents one forecast entry (e.g. one day).
 type ForecastItem struct {
 	Date        string          `json:"date"`
 	Temperature decimal.Decimal `json:"temperature"`
