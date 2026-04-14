@@ -210,7 +210,6 @@ func TestCurrentWeatherController_GetCurrentWeather_VeryHot(t *testing.T) {
 	}
 }
 
-// ✅ Тест 8: Очень низкая температура
 func TestCurrentWeatherController_GetCurrentWeather_VeryCold(t *testing.T) {
 	expectedTemp := decimal.NewFromFloat(-40.0) // -40°C - очень холодно
 	mock := &mockWeatherClient{temp: expectedTemp}
@@ -229,7 +228,6 @@ func TestCurrentWeatherController_GetCurrentWeather_VeryCold(t *testing.T) {
 	}
 }
 
-// Вспомогательная функция для форматирования дня
 func formatDay(day int) string {
 	if day < 10 {
 		return "0" + string(rune(day+'0'))
