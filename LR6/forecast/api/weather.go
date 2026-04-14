@@ -24,12 +24,13 @@ type WeatherHandler struct {
 func NewCurrentWeatherHandler() *WeatherHandler {
 	openWeatherURL := utils.GetEnv("OPENWEATHER_BASE_URL", "https://api.openweathermap.org/data/2.5/weather")
 	googleBaseURL := utils.GetEnv("GOOGLE_WEATHER_BASE_URL", "https://weather.googleapis.com/v1")
+	googleKey := utils.GetEnv("GOOGLE_WEATHER_API_KEY", utils.GetEnv("GOOGLE_API_KEY", ""))
 	return &WeatherHandler{
 		Providers: map[string]clients.WeatherDataClient{
 			ProviderOpenWeather: clients.NewOpenWeatherClient(
 				utils.GetEnv("OPENWEATHER_API_KEY", ""), openWeatherURL),
 			ProviderGoogle: clients.NewGoogleWeatherClient(
-				utils.GetEnv("GOOGLE_WEATHER_API_KEY", ""), googleBaseURL),
+				googleKey, googleBaseURL),
 		},
 	}
 }
