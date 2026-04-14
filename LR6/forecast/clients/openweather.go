@@ -60,11 +60,11 @@ func (c *OpenWeatherClient) LocationCurrentTemperature(lat decimal.Decimal, lon 
 }
 
 func (c *OpenWeatherClient) LocationForecast(lat decimal.Decimal, lon decimal.Decimal) ([]ForecastItem, error) {
-	forecastBase := c.baseURL
-	if strings.Contains(c.baseURL, "weather") {
-		forecastBase = strings.Replace(c.baseURL, "weather", "forecast", 1)
-	} else {
-		forecastBase = strings.TrimSuffix(c.baseURL, "/") + "/forecast"
+	forecastBase := strings.TrimSuffix(c.baseURL, "/")
+	if strings.HasSuffix(forecastBase, "/weather") {
+		forecastBase = strings.TrimSuffix(forecastBase, "/weather") + "/forecast"
+	} else if !strings.HasSuffix(forecastBase, "/forecast") {
+		forecastBase += "/forecast"
 	}
 	url := fmt.Sprintf("%s?lat=%s&lon=%s&appid=%s&units=metric",
 		forecastBase, lat.String(), lon.String(), c.apiKey)
