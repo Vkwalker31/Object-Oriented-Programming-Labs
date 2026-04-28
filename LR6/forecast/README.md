@@ -1,226 +1,44 @@
-# Лабораторная работа №6: Dependency Injection и TDD.
+# Weather Forecast API (LR6)
 
-Разработать масштабируемый микросервис для получения данных о погоде с применением современных архитектурных принципов, паттернов проектирования и методологии Test-Driven Development (TDD).
+Сервис погоды с Dependency Injection и модульными тестами.
 
----
-# Weather Forecast API
+## Что реализовано
+- Выбор провайдера: `openweather` или `google` через query-параметр `provider`.
+- Текущая погода по координатам (`lat`, `lon`) или по городу (`city`).
+- Прогноз погоды для локации.
+- Пакетное получение текущей температуры для нескольких локаций.
+- Поддержка городов: `Minsk`, `London`, `Tokyo`, `Shanghai`, `Warsaw`.
+- Swagger для всех роутов.
 
-Микросервис для получения текущей погоды и прогноза с поддержкой множественных провайдеров данных (OpenWeather, Google Weather API). Реализован с использованием принципов GRASP, паттернов GoF, Dependency Injection и TDD.
-
----
-
-## 📚 Документация
-
-- **[Swagger UI](http://localhost:8080/swagger/index.html)** — интерактивная документация API
-- **[OpenWeather API](https://openweathermap.org/api)** — используемый провайдер
-- **[Google Weather API](https://weather.googleapis.com)** — альтернативный провайдер
-
----
-
-## 🚀 Быстрый старт
-
-### Базовые команды
-
+## Запуск
 ```bash
-# Генерация Swagger документации (после изменения комментариев)
-swag init -g main.go -o ./api/docs --parseDependency
-
-# Запуск приложения
 go run main.go
+```
 
-# Запуск всех тестов (из корня проекта с go.work)
+Swagger UI: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
+
+## Тесты
+```bash
 go test ./...
-
-# Запуск тестов с покрытием
 go test ./... -cover
-
-# Запуск конкретного пакета тестов
-go test ./internal/provider -v
 ```
 
----
-
-## ⚙️ Переменные окружения
-
-Создайте файл `.env` в корне проекта:
-
+## Переменные окружения
 ```env
-# OpenWeather провайдер
-OPENWEATHER_API_KEY=a701438bafa0cae95bdba39819ca6370
+OPENWEATHER_API_KEY=your_openweather_api_key
 OPENWEATHER_BASE_URL=https://api.openweathermap.org/data/2.5/weather
-
-# Google Weather провайдер (опционально)
 GOOGLE_WEATHER_API_KEY=your_google_api_key
+# alias also supported:
+# GOOGLE_API_KEY=your_google_api_key
 GOOGLE_WEATHER_BASE_URL=https://weather.googleapis.com/v1
-
-# Порт приложения
-PORT=8080
 ```
 
-**Как получить API ключ:**
-1. Зарегистрируйтесь на [OpenWeather](https://openweathermap.org/api)
-2. Перейдите в [API keys](https://home.openweathermap.org/api_keys)
-3. Скопируйте **Default key** или создайте новый
-4. Убедитесь что подтвердили email
-5. Вставьте ключ в `.env`
+Важно: не коммитьте реальные API-ключи в Git. Храните их только в локальном `.env`.
 
----
-
-## 📡 API Endpoints
-
-### Текущая погода
-
-#### По названию города
-```http
-GET /api/v1/weather?city=Minsk
-```
-
-**Параметры:**
-- `city` — название города (поддерживаемые: Minsk, London, Tokyo, Shanghai, Warsaw)
-- `provider` — провайдер данных, опционально (openweather | google)
-
-**Ответ (200):**
-```json
-{
-  "code": 200,
-  "message": "Success",
-  "data": {
-    "temperature": -0.91,
-    "feels_like": -4.91,
-    "humidity": 87,
-    "pressure": 1014,
-    "description": "scattered clouds"
-  }
-}
-```
-
-#### По координатам
-```http
-GET /api/v1/weather?lat=53.9&lon=27.5667
-```
-
-**Параметры:**
-- `lat` — широта
-- `lon` — долгота
-- `provider` — провайдер данных, опционально
-
----
-
-### Прогноз погоды
-
-```http
-GET /api/v1/forecast?city=London&days=3
-```
-
-**Параметры:**
-- `city` — название города или координаты (lat, lon)
-- `days` — количество дней прогноза (1-10)
-- `provider` — провайдер данных, опционально
-
-**Ответ (200):**
-```json
-{
-  "code": 200,
-  "message": "Success",
-  "data": {
-    "entries": [
-      {
-        "date": "2026-02-17",
-        "temperature": 14.2,
-        "humidity": 75
-      },
-      {
-        "date": "2026-02-18",
-        "temperature": 16.8,
-        "humidity": 68
-      },
-      {
-        "date": "2026-02-19",
-        "temperature": 18.1,
-        "humidity": 62
-      }
-    ]
-  }
-}
-```
-
----
-
-### Пакетный запрос (несколько локаций)
-
-```http
-POST /api/v1/weather/batch?provider=openweather
-Content-Type: application/json
-
-[
-  {"city": "Minsk"},
-  {"city": "London"},
-  {"lat": "35.6762", "lon": "139.6503"}
-]
-```
-
-**Ответ (200):**
-```json
-{
-  "code": 200,
-  "message": "Success",
-  "data": {
-    "results": [
-      {
-        "location": "Minsk",
-        "temperature": -0.91
-      },
-      {
-        "location": "London",
-        "temperature": 8.5
-      },
-      {
-        "location": "Tokyo",
-        "temperature": 12.3
-      }
-    ]
-  }
-}
-```
-## 🧪 Тестирование
-
-### Философия TDD
-
-Проект следует принципам Test-Driven Development:
-
-1. ✅ **Тесты написаны перед кодом** — история коммитов это подтверждает
-2. ✅ **FIRST характеристики:**
-    - **F**ast — тесты выполняются за миллисекунды
-    - **I**ndependent — каждый тест независим
-    - **R**epeatable — результаты воспроизводимы
-    - **S**elf-Validating — явный результат (pass/fail)
-    - **T**imely — написаны одновременно с кодом
-
-### Запуск тестов
-
-```bash
-# Все тесты с подробным выводом
-go test ./... -v
-
-# С покрытием
-go test ./... -cover
-
-# Конкретный пакет
-go test ./internal/service -v
-
-# Конкретный тест
-go test ./internal/service -run TestGetWeather -v
-
-# Интеграционные тесты
-go test ./tests/integration -v
-
-# Тесты с бенчмарками
-go test ./... -bench=. -benchmem
-```
-
-**Покрытие кода:**
-```bash
-go test ./... -coverprofile=coverage.out
-go tool cover -html=coverage.out
-```
----
+## Роуты
+- `GET /api/v1/weather` — текущая погода.  
+  Параметры: `lat`+`lon` **или** `city`, опционально `provider`.
+- `GET /api/v1/forecast` — прогноз погоды.  
+  Параметры: `lat`+`lon` **или** `city`, опционально `provider`.
+- `POST /api/v1/weather/batch` — текущая погода для нескольких локаций.  
+  Body: массив элементов вида `{"city":"Minsk"}` или `{"lat":"53.9","lon":"27.56"}`, опционально `provider`.
