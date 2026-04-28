@@ -211,12 +211,12 @@ func TestCurrentWeatherController_GetCurrentWeather_VeryHot(t *testing.T) {
 }
 
 func TestCurrentWeatherController_GetCurrentWeather_VeryCold(t *testing.T) {
-	expectedTemp := decimal.NewFromFloat(-40.0) // -40°C - очень холодно
+	expectedTemp := decimal.NewFromFloat(-40.0)
 	mock := &mockWeatherClient{temp: expectedTemp}
 	ctrl := NewCurrentWeatherController(mock)
 
 	result, err := ctrl.GetCurrentWeather(
-		decimal.NewFromFloat(64.0), // Якутск
+		decimal.NewFromFloat(64.0),
 		decimal.NewFromFloat(130.0),
 	)
 

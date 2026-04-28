@@ -3,6 +3,7 @@ package clients
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -28,7 +29,6 @@ type googleForecastDaysResponse struct {
 	} `json:"dailyForecasts"`
 }
 
-// GoogleWeatherClient implements WeatherDataClient for Google Weather API.
 type GoogleWeatherClient struct {
 	apiKey  string
 	baseURL string
@@ -38,68 +38,74 @@ type GoogleWeatherClient struct {
 func NewGoogleWeatherClient(apiKey string, baseURL string) *GoogleWeatherClient {
 	return &GoogleWeatherClient{
 		apiKey:  apiKey,
-		baseURL: baseURL,
+		baseURL: strings.TrimSuffix(baseURL, "/"),
 		client:  http.DefaultClient,
 	}
 }
 
-func (g *GoogleWeatherClient) LocationCurrentTemperature(lat decimal.Decimal, lon decimal.Decimal) (decimal.Decimal, error) {
-	base := strings.TrimSuffix(g.baseURL, "/")
-	path := base
-	if !strings.HasSuffix(base, "/currentConditions:lookup") {
-		path = base + "/currentConditions:lookup"
+func (g *GoogleWeatherClient) fixCoords(lat, lon decimal.Decimal) (decimal.Decimal, decimal.Decimal) {
+	if lat.Abs().GreaterThan(decimal.NewFromInt(90)) {
+		fmt.Printf("[FIX] Swapping Lat/Lon. Original: Lat=%s, Lon=%s\n", lat.String(), lon.String())
+		return lon, lat
 	}
+	return lat, lon
+}
+
+func (g *GoogleWeatherClient) LocationCurrentTemperature(lat decimal.Decimal, lon decimal.Decimal) (decimal.Decimal, error) {
+	lat, lon = g.fixCoords(lat, lon)
+
+	u := fmt.Sprintf("%s/currentConditions:lookup", g.baseURL)
+
 	q := url.Values{}
 	q.Set("key", g.apiKey)
 	q.Set("location.latitude", lat.String())
 	q.Set("location.longitude", lon.String())
-	requestURL := path + "?" + q.Encode()
 
-	resp, err := g.doGet(requestURL)
+	fullURL := u + "?" + q.Encode()
+	fmt.Println("[DEBUG] Calling Google Current:", fullURL)
+
+	resp, err := g.doGet(fullURL)
 	if err != nil {
-		return decimal.Zero, fmt.Errorf("failed to call google weather: %w", err)
+		return decimal.Zero, err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return decimal.Zero, fmt.Errorf("google weather returned bad status: %d", resp.StatusCode)
-	}
-
 	var data googleCurrentResponse
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return decimal.Zero, fmt.Errorf("failed to decode google response: %w", err)
+		return decimal.Zero, fmt.Errorf("decode error: %w", err)
 	}
 
 	return decimal.NewFromFloat(data.Temperature.Degrees), nil
 }
 
 func (g *GoogleWeatherClient) LocationForecast(lat decimal.Decimal, lon decimal.Decimal) ([]ForecastItem, error) {
-	base := strings.TrimSuffix(g.baseURL, "/")
-	path := base
-	if strings.HasSuffix(base, "/currentConditions:lookup") {
-		path = strings.TrimSuffix(base, "/currentConditions:lookup") + "/forecast/days:lookup"
-	} else if !strings.HasSuffix(base, "/forecast/days:lookup") {
-		path = base + "/forecast/days:lookup"
-	}
+	lat, lon = g.fixCoords(lat, lon)
+
+	u := fmt.Sprintf("%s/forecast:lookup", g.baseURL)
+
 	q := url.Values{}
 	q.Set("key", g.apiKey)
 	q.Set("location.latitude", lat.String())
 	q.Set("location.longitude", lon.String())
-	requestURL := path + "?" + q.Encode()
 
-	resp, err := g.doGet(requestURL)
+	fullURL := u + "?" + q.Encode()
+	fmt.Println("[DEBUG] Calling Google Forecast:", fullURL)
+
+	resp, err := g.doGet(fullURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call google forecast: %w", err)
+		fmt.Println("[DEBUG] Primary forecast failed, trying alternative path...")
+		u = fmt.Sprintf("%s/forecast/days:lookup", g.baseURL)
+		fullURL = u + "?" + q.Encode()
+		resp, err = g.doGet(fullURL)
+		if err != nil {
+			return nil, err
+		}
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("google forecast returned bad status: %d", resp.StatusCode)
-	}
-
 	var data googleForecastDaysResponse
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return nil, fmt.Errorf("failed to decode google forecast: %w", err)
+		return nil, fmt.Errorf("decode error: %w", err)
 	}
 
 	var result []ForecastItem
@@ -116,9 +122,20 @@ func (g *GoogleWeatherClient) LocationForecast(lat decimal.Decimal, lon decimal.
 func (g *GoogleWeatherClient) doGet(requestURL string) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, requestURL, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to build google weather request: %w", err)
+		return nil, err
 	}
-	// Accept both query key and header-based API key auth.
+
 	req.Header.Set("X-Goog-Api-Key", g.apiKey)
-	return g.client.Do(req)
+	resp, err := g.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		return nil, fmt.Errorf("google api error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	return resp, nil
 }

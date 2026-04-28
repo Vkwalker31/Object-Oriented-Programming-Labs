@@ -71,6 +71,7 @@ func (h *WeatherHandler) resolveLatLon(c *gin.Context) (lat, lon decimal.Decimal
 // @Failure      400       {object}  responses.StatusResponse
 // @Failure      500       {object}  responses.StatusResponse
 // @Router       /weather [get]
+
 func (h *WeatherHandler) HandleGetCurrentWeather(c *gin.Context) {
 	lat, lon, ok := h.resolveLatLon(c)
 	if !ok {
@@ -100,6 +101,7 @@ func (h *WeatherHandler) HandleGetCurrentWeather(c *gin.Context) {
 // @Failure      400       {object}  responses.StatusResponse
 // @Failure      500       {object}  responses.StatusResponse
 // @Router       /forecast [get]
+
 func (h *WeatherHandler) HandleGetForecast(c *gin.Context) {
 	lat, lon, ok := h.resolveLatLon(c)
 	if !ok {
@@ -118,9 +120,9 @@ func (h *WeatherHandler) HandleGetForecast(c *gin.Context) {
 
 // LocationRequest is one location for batch request (coordinates or city).
 type LocationRequest struct {
-	Lat   *string `json:"lat,omitempty"`
-	Lon   *string `json:"lon,omitempty"`
-	City  *string `json:"city,omitempty"`
+	Lat  *string `json:"lat,omitempty"`
+	Lon  *string `json:"lon,omitempty"`
+	City *string `json:"city,omitempty"`
 }
 
 // LocationWeather is current weather for one location.
@@ -144,6 +146,7 @@ type BatchWeatherResponse []LocationWeather
 // @Failure      400       {object}  responses.StatusResponse
 // @Failure      500       {object}  responses.StatusResponse
 // @Router       /weather/batch [post]
+
 func (h *WeatherHandler) HandleGetCurrentWeatherBatch(c *gin.Context) {
 	var locations []LocationRequest
 	if err := c.ShouldBindJSON(&locations); err != nil {
