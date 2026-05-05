@@ -2,7 +2,7 @@ spring:
   application:
     name: book-sharing-platform
   datasource:
-    url: jdbc:postgresql://localhost:5433/booksharing
+    url: jdbc:postgresql://localhost:5432/booksharing
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -11,7 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
